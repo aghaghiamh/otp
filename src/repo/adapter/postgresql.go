@@ -1,0 +1,37 @@
+package adapter
+
+import (
+	"fmt"
+	_ "github.com/lib/pq"
+	"otp/src/pkg/config"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+	
+)
+
+func CreatePostgresqlDbClient() *gorm.DB {
+	db, err := gorm.Open(postgres.Open(generatePostgresConnectionString()), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: false,
+			NoLowerCase:   true,
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		// TODO: Add Logger.Fatal
+	}
+
+	if config.GetAppConfigInstance().AutoMigrationEnable {
+		// TODO: Auto-migration stuff
+	}
+
+	return db
+}
+
+func generatePostgresConnectionString() string {
+	cnf := config.GetAppConfigInstance()
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cnf.Postgres.Host, cnf.Postgres.Port, cnf.Postgres.Username, cnf.Postgres.Password, cnf.Postgres.DB)
+}

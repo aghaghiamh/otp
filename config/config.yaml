@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+# You can specify the service log level with the help of this configuration.
+# The lower the log level, the more information is logged.
+# Possible values: panic, fatal, error, warn, info, debug, trace
+# You can change or overwrite this value using the LOG_LEVEL env
+log:
+  level: "info"
+
+# With the help of this field, you can specify what type of database you want to use.
+# Possible values: postgres/sqlserver/memory
+# You can change or overwrite this value using the DB env
+database: 'postgres'
+
+# If you are using Postgres as db, you must fill these configurations
+# The list of environment variables used in Postgres configuration is as follows
+#  user   ->   PG_USERNAME
+#  pass   ->   PG_PASSWORD
+#  db     ->   PG_DB
+#  host   ->   PG_HOST
+#  port   ->   PG_PORT
+postgres:
+  user: "admin2"
+  pass: "pass"
+  db: "db"
+  host: "localhost"
+  port: 1234
+
+# This configuration specifies how long the OTP is valid
+# You can change or overwrite this value using the EXPIRATION_IN_MINUTE env
+defaultExpirationInMinute: 2
+
+# When this configuration is set, the application automatically creates the tables related to the database.
+# You can change or overwrite this value using the AUTO_MIGRATION env
+autoMigrationEnable: false
+
+swaggerBaseAddress: http://localhost/

@@ -1,0 +1,12 @@
+# TODO: change it to 'memory'
+database: 'postgres'
+baseUrl: 'http://localhost:8080/'
+
+postgres:
+  user: "agi"
+  pass: "pass"
+  db: "user_management"
+  host: "localhost"
+  port: 5432
+
+autoMigrationEnable: true
