@@ -14,8 +14,9 @@ import (
 func main() {
 	config.GetAppConfigInstance()
 	redisClient := adaptor.CreateRedisClient()
+	userManagementRepo := adaptor.GetRepoInstance()
 	otpRepo := implementation.NewRedisOTPRepository(redisClient)
-	otpSvc := service.GetInstanceOfOTPService(otpRepo)
+	otpSvc := service.GetInstanceOfOTPService(otpRepo, userManagementRepo)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)

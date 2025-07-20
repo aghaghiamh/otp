@@ -17,7 +17,6 @@ func CreatePostgresqlDbClient() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(generatePostgresConnectionString()), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: false,
-			NoLowerCase:   true,
 		},
 	})
 	if err != nil {
@@ -26,7 +25,7 @@ func CreatePostgresqlDbClient() *gorm.DB {
 	}
 
 	if config.GetAppConfigInstance().AutoMigrationEnable {
-		err := db.AutoMigrate(&model.OTP{})
+		err := db.AutoMigrate(&model.User{})
 		if err != nil {
 			log.GetLoggerInstance().Fatal(err)
 			return nil

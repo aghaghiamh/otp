@@ -4,18 +4,26 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"otp/src/model"
 	"otp/src/pkg/log"
 	"otp/src/repo"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
+var jwtSecret = []byte("my-super-secret-key")
+
 type OTPService struct {
-	otpRepo repo.OTPManagement
+	otpRepo  repo.OTPManagement
+	userRepo repo.UserManagement
 }
 
-func GetInstanceOfOTPService(otpRepo repo.OTPManagement) *OTPService {
-	return &OTPService{otpRepo: otpRepo}
+func GetInstanceOfOTPService(otpRepo repo.OTPManagement, userRepo repo.UserManagement) *OTPService {
+	return &OTPService{
+		otpRepo: otpRepo,
+		userRepo: userRepo,
+	}
 }
 
 func (receiver OTPService) RequestOTP(mobileNumber string) error {
@@ -53,4 +61,51 @@ func generateRandomCode(length int) string {
 		buffer[i] = otpChars[int(buffer[i])%len(otpChars)]
 	}
 	return string(buffer)
+}
+
+func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) error {
+	codeHash, gErr := receiver.otpRepo.Get(context.Background(), mobileNumber)
+	if gErr != nil {
+		log.GetLoggerInstance().Errorf("There is no record with %s mobile number", mobileNumber)
+		// TODO: appropriate error Handling
+		return fmt.Errorf("")
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(codeHash), []byte(otpCode))
+	if err != nil {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	// User Registeration OR Login
+	// TODO: Separate the entity.USer and model.User, as it is better to not knowing about the Repo layer.
+	user, uErr := receiver.userRepo.GetUserByMobileNumber(context.Background(), mobileNumber)
+
+	if uErr != nil {
+		if uErr == gorm.ErrRecordNotFound {
+			user = &model.User{
+				MobileNumber: mobileNumber,
+			}
+			cErr := receiver.userRepo.Register(context.Background(), user)
+			if cErr != nil {
+				return cErr
+			}
+		} else {
+			return uErr
+		}
+	}
+
+	return nil
+
+	// claims := jwt.MapClaims{
+	//     "user_id": user.ID,
+	//     "mobile":  user.MobileNumber,
+	//     "exp":     time.Now().Add(time.Hour * 72).Unix(), // Token expires in 3 days
+	// }
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// tokenString, err := token.SignedString(jwtSecret)
+	// if err != nil {
+	//     return "", err
+	// }
+
+	// return tokenString, nil
 }

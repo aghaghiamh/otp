@@ -8,4 +8,5 @@ func (h Handler) SetRoutes(e *echo.Echo) {
 	userGroup := e.Group("/user-management")
 
 	userGroup.POST("/req-otp", h.RequestOTP)
+	userGroup.POST("/verify-otp", h.VerifyOTP)
 }

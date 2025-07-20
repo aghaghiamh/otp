@@ -11,11 +11,11 @@ import (
 )
 
 type redisOTPRepository struct {
-    client *redis.Client
+	client *redis.Client
 }
 
 func NewRedisOTPRepository(client *redis.Client) repo.OTPManagement {
-    return &redisOTPRepository{client: client}
+	return &redisOTPRepository{client: client}
 }
 
 func (r *redisOTPRepository) Store(ctx context.Context, mobileNumber, otpHash string) error {
@@ -33,5 +33,5 @@ func (r *redisOTPRepository) Get(ctx context.Context, mobileNumber string) (stri
 
 func genKey(mobileNumber string) string {
 	cnf := config.GetAppConfigInstance()
-	return fmt.Sprintf("%s:%s",cnf.OTPCacheReservedKey, mobileNumber)
+	return fmt.Sprintf("%s:%s", cnf.OTPCacheReservedKey, mobileNumber)
 }

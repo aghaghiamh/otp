@@ -10,7 +10,7 @@ import (
 )
 
 // TODO: for testing purpose better to implement a Cache interface with required methods (GET/SET/...),
-// For the sake of time, I just ignore it. 
+// For the sake of time, I just ignore it.
 func CreateRedisClient() *redis.Client {
 	cnf := config.GetAppConfigInstance()
 
@@ -22,8 +22,8 @@ func CreateRedisClient() *redis.Client {
 	})
 
 	if _, err := cache.Ping(context.Background()).Result(); err != nil {
-        log.GetLoggerInstance().Fatalf("Could not connect to Redis: %v", err)
-    }
+		log.GetLoggerInstance().Fatalf("Could not connect to Redis: %v", err)
+	}
 
 	return cache
 }

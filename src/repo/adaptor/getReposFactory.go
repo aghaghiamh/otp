@@ -4,15 +4,16 @@ import (
 	"otp/src/pkg/config"
 	"otp/src/pkg/log"
 	"otp/src/repo"
+	"otp/src/repo/implementation"
 )
 
-func GetRepoInstance() repo.OTPManagement {
-	var otpManagement repo.OTPManagement = nil
+func GetRepoInstance() repo.UserManagement {
+	var userManagement repo.UserManagement = nil
 
 	switch config.GetAppConfigInstance().Database {
 	case "postgres":
-		 CreatePostgresqlDbClient()
-		// otpManagement = implementation.GetInstanceOfPostgresOTPManagement(db)
+		db := CreatePostgresqlDbClient()
+		userManagement = implementation.GetInstanceOfPostgresUserManagement(db)
 
 	case "memory":
 		// TODO: Implementations
@@ -21,5 +22,5 @@ func GetRepoInstance() repo.OTPManagement {
 		log.GetLoggerInstance().Fatal("invalid db type")
 	}
 
-	return otpManagement
+	return userManagement
 }
