@@ -1,8 +1,8 @@
 package service
 
 import (
+	"context"
 	"crypto/rand"
-	"otp/src/model"
 	"otp/src/pkg/log"
 	"otp/src/repo"
 
@@ -28,10 +28,7 @@ func (receiver OTPService) RequestOTP(mobileNumber string) error {
 		return err
 	}
 
-	sErr := receiver.otpRepo.Store(&model.OTP{
-		MobileNumber: mobileNumber,
-		CodeHash:     string(hashedOTP),
-	})
+	sErr := receiver.otpRepo.Store(context.Background(), mobileNumber, string(hashedOTP))
 	if sErr != nil {
 		// TODO: Handle Error
 	}

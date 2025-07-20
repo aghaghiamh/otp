@@ -11,4 +11,11 @@ postgres:
   host: "localhost"
   port: 5432
 
+cache:
+# Define host as 'redis' when using docker-compose for all services, unless set it to 'localhost'
+  host: "localhost"
+  port: 6379
+  password: "" # TODO: implement later using env variables
+  db: 0
+
 autoMigrationEnable: true

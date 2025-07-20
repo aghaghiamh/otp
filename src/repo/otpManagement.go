@@ -1,7 +1,9 @@
 package repo
 
-import "otp/src/model"
+import (
+	"context"
+)
 
 type OTPManagement interface {
-	Store(otp *model.OTP) error
+	Store(ctx context.Context, mobileNumber, otpHash string) error
 }

@@ -15,5 +15,21 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7.4.2 
+    container_name: otp-redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/otp_redis_data
+    networks:
+      - otp-management
+
 volumes:
   pgdata:
+  redis-data:
+
+networks:
+  otp-management:
+    driver: bridge

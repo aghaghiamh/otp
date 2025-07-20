@@ -7,7 +7,7 @@ type AppConfig struct {
 	SwaggerBaseAddress        string `yaml:"swaggerBaseAddress"`
 
 	Server struct {
-		Port int64 `yaml:"port" envconfig:"SERVER_PORT"`
+		Port int64  `yaml:"port" envconfig:"SERVER_PORT"`
 		Host string `yaml:"host" envconfig:"SERVER_HOST"`
 	} `yaml:"server"`
 
@@ -22,4 +22,11 @@ type AppConfig struct {
 		Host     string `yaml:"host" envconfig:"PG_HOST"`
 		Port     int64  `yaml:"port" envconfig:"PG_PORT"`
 	} `yaml:"postgres"`
+
+	Cache struct {
+		Host     string `yaml:"host" envconfig:"CACHE_HOST"`
+		Port     int    `yaml:"port" envconfig:"CACHE_PORT"`
+		Password string `yaml:"password" envconfig:"CACHE_PASSWORD"`
+		DB       int  `yaml:"db" envconfig:"CACHE_DB"`
+	} `yaml:"cache"`
 }

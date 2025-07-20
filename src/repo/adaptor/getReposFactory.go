@@ -1,19 +1,18 @@
-package adapter
+package adaptor
 
 import (
 	"otp/src/pkg/config"
 	"otp/src/pkg/log"
 	"otp/src/repo"
-	"otp/src/repo/implementation"
 )
 
-func GetReposInstances() repo.OTPManagement {
+func GetRepoInstance() repo.OTPManagement {
 	var otpManagement repo.OTPManagement = nil
 
 	switch config.GetAppConfigInstance().Database {
 	case "postgres":
-		db := CreatePostgresqlDbClient()
-		otpManagement = implementation.GetInstanceOfPostgresOTPManagement(db)
+		 CreatePostgresqlDbClient()
+		// otpManagement = implementation.GetInstanceOfPostgresOTPManagement(db)
 
 	case "memory":
 		// TODO: Implementations
