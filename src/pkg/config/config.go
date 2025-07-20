@@ -1,13 +1,14 @@
 package config
 
 type AppConfig struct {
-	Database               string `yaml:"database" envconfig:"DB_TYPE"`
-	DefaultExpirationInMinute int16  `yaml:"defaultExpirationInDay" envconfig:"EXPIRATION_IN_MINUTE"`
-	AutoMigrationEnable    bool   `yaml:"autoMigrationEnable" envconfig:"AUTO_MIGRATION"`
-	SwaggerBaseAddress     string `yaml:"swaggerBaseAddress"`
+	Database                  string `yaml:"database" envconfig:"DB_TYPE"`
+	DefaultExpirationInMinute int16  `yaml:"defaultExpirationInMinute" envconfig:"EXPIRATION_IN_MINUTE"`
+	AutoMigrationEnable       bool   `yaml:"autoMigrationEnable" envconfig:"AUTO_MIGRATION"`
+	SwaggerBaseAddress        string `yaml:"swaggerBaseAddress"`
 
 	Server struct {
 		Port int64 `yaml:"port" envconfig:"SERVER_PORT"`
+		Host string `yaml:"host" envconfig:"SERVER_HOST"`
 	} `yaml:"server"`
 
 	Log struct {

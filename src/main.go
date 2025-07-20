@@ -1,15 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"otp/src/controller/httpserver"
+	otphandler "otp/src/controller/httpserver/otpHandler"
 	"otp/src/pkg/config"
 	"otp/src/repo/adapter"
+	"otp/src/service"
 )
 
 func main() {
-	cnf := config.GetAppConfigInstance()
-	adapter.GetReposInstances()
-	fmt.Printf(fmt.Sprintf("Server running at %d", cnf.Server.Port))
-	fmt.Print(http.ListenAndServe(fmt.Sprintf(":%d", cnf.Server.Port), nil))
+	config.GetAppConfigInstance()
+	otpRepo := adapter.GetReposInstances()
+	otpSvc := service.GetInstanceOfOTPService(otpRepo)
+	otpHandler := otphandler.New(*otpSvc)
+	server := httpserver.New(otpHandler)
+	server.Serve()
 }

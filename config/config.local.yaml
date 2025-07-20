@@ -1,6 +1,8 @@
+server:
+  host: 'localhost'
+
 # TODO: change it to 'memory'
 database: 'postgres'
-baseUrl: 'http://localhost:8080/'
 
 postgres:
   user: "agi"

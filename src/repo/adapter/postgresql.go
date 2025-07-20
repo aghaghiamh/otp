@@ -2,13 +2,15 @@ package adapter
 
 import (
 	"fmt"
-	_ "github.com/lib/pq"
+	"otp/src/model"
 	"otp/src/pkg/config"
+	"otp/src/pkg/log"
+
+	_ "github.com/lib/pq"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	
 )
 
 func CreatePostgresqlDbClient() *gorm.DB {
@@ -24,7 +26,11 @@ func CreatePostgresqlDbClient() *gorm.DB {
 	}
 
 	if config.GetAppConfigInstance().AutoMigrationEnable {
-		// TODO: Auto-migration stuff
+		err := db.AutoMigrate(&model.OTP{})
+		if err != nil {
+			log.GetLoggerInstance().Fatal(err)
+			return nil
+		}
 	}
 
 	return db
