@@ -1,6 +1,7 @@
 package config
 
 type AppConfig struct {
+	OTPCacheReservedKey		  string `yaml:"otpCacheReservedKey" envconfig:"OTP_CACHE_RESERVED_KEY"`
 	Database                  string `yaml:"database" envconfig:"DB_TYPE"`
 	DefaultExpirationInMinute int16  `yaml:"defaultExpirationInMinute" envconfig:"EXPIRATION_IN_MINUTE"`
 	AutoMigrationEnable       bool   `yaml:"autoMigrationEnable" envconfig:"AUTO_MIGRATION"`

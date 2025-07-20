@@ -11,6 +11,8 @@ postgres:
   host: "localhost"
   port: 5432
 
+otpCacheReservedKey: "otp"
+
 cache:
 # Define host as 'redis' when using docker-compose for all services, unless set it to 'localhost'
   host: "localhost"

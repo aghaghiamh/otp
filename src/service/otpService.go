@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"crypto/rand"
+	"fmt"
 	"otp/src/pkg/log"
 	"otp/src/repo"
 
@@ -18,7 +19,12 @@ func GetInstanceOfOTPService(otpRepo repo.OTPManagement) *OTPService {
 }
 
 func (receiver OTPService) RequestOTP(mobileNumber string) error {
-	// TODO: rate limit user
+	// Assumed DDOS attack would be blocked by API Gateway RateLimiter
+	if _, err := receiver.otpRepo.Get(context.Background(), mobileNumber); err == nil {
+		log.GetLoggerInstance().Errorf("OTP Expiration Time violation!")
+		// TODO: appropriate error Handling
+		return fmt.Errorf("")
+	}
 
 	otpCode := generateRandomCode(6)
 

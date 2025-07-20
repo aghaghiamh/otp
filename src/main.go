@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"os/signal"
 	"otp/src/controller/httpserver"
 	otphandler "otp/src/controller/httpserver/otpHandler"
 	"otp/src/pkg/config"
@@ -14,7 +16,17 @@ func main() {
 	redisClient := adaptor.CreateRedisClient()
 	otpRepo := implementation.NewRedisOTPRepository(redisClient)
 	otpSvc := service.GetInstanceOfOTPService(otpRepo)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+
 	otpHandler := otphandler.New(*otpSvc)
 	server := httpserver.New(otpHandler)
-	server.Serve()
+	go func() {
+		server.Serve()
+	}()
+
+	// Graceful Termination
+	<-quit
+	server.Shutdown()
 }
