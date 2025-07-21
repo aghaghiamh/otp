@@ -1,6 +1,7 @@
 package otphandler
 
 import (
+	"fmt"
 	"net/http"
 	dto "otp/src/controller/httpserver/otpHandler/DTO"
 
@@ -16,11 +17,11 @@ import (
 //	@Tags			OTP
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload body dto.RequestOTPInputDTO true "Request OTP Payload"
-//	@Success		200			string		model.Account
+//	@Param			payload	body		dto.RequestOTPInput	true	"Request OTP Payload"
+//	@Success		200		{object}	dto.RequestOTPOutput
 //	@Router			/user-management/req-otp [post]
 func (h Handler) RequestOTP(c echo.Context) error {
-	var req dto.RequestOTPInputDTO
+	var req dto.RequestOTPInput
 	if err := c.Bind(&req); err != nil {
 
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -35,5 +36,7 @@ func (h Handler) RequestOTP(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Not proper")
 	}
 
-	return c.JSON(http.StatusOK, "resp")
+	return c.JSON(http.StatusOK, dto.RequestOTPOutput{
+		Message: fmt.Sprintf("The OTP code have been sent for %s mobile number.", *req.MobileNumber),
+	})
 }

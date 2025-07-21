@@ -1,0 +1,109 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a UserManagenet which implements OTP",
+        "title": "OTP UserManagement",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/user-management/req-otp": {
+            "post": {
+                "description": "Request an OTP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Request an OTP",
+                "parameters": [
+                    {
+                        "description": "Request OTP Payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestOTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestOTPOutput"
+                        }
+                    }
+                }
+            }
+        },
+        "/user-management/verify-otp": {
+            "post": {
+                "description": "Verify an OTP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Verify an OTP",
+                "parameters": [
+                    {
+                        "description": "Verify OTP Payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyOTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.RequestOTPInput": {
+            "type": "object",
+            "properties": {
+                "mobile_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequestOTPOutput": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.VerifyOTPInput": {
+            "type": "object",
+            "properties": {
+                "mobile_number": {
+                    "type": "string"
+                },
+                "otp_code": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

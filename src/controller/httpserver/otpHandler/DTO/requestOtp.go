@@ -1,10 +1,9 @@
 package dto
 
-type RequestOTPInputDTO struct {
+type RequestOTPInput struct {
 	MobileNumber *string `json:"mobile_number"`
 }
 
-type RequestOTPSuccessOutputDTO struct {
-	Status  string `json:"status"`
+type RequestOTPOutput struct {
 	Message string `json:"message"`
 }

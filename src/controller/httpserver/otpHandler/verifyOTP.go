@@ -14,11 +14,11 @@ import (
 //	@Tags			OTP
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload body dto.VerifyOTPInputDTO true "Verify OTP Payload"
-//	@Success		200			string		model.Account
+//	@Param			payload	body	dto.VerifyOTPInput	true	"Verify OTP Payload"
+//	@Success		200		string	dto.VerifyOTPOutput
 //	@Router			/user-management/verify-otp [post]
 func (h Handler) VerifyOTP(c echo.Context) error {
-	var req dto.VerifyOTPInputDTO
+	var req dto.VerifyOTPInput
 	if err := c.Bind(&req); err != nil {
 
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -26,12 +26,19 @@ func (h Handler) VerifyOTP(c echo.Context) error {
 
 	// TODO: Validation
 
-	_, err := h.otpSvc.VerifyOTP(*req.MobileNumber, *req.OtpCode)
+	access_token, err := h.otpSvc.VerifyOTP(*req.MobileNumber, *req.OtpCode)
 	if err != nil {
 		// TODO: ERROR MSG
 
 		return echo.NewHTTPError(http.StatusBadRequest, "Not proper")
 	}
 
-	return c.JSON(http.StatusOK, "resp")
+	return c.JSON(http.StatusOK, dto.VerifyOTPOutput{
+		AuthTokens: dto.AuthTokens{
+			AccessToken: access_token,
+		},
+		UserInfo: dto.UserOTPResponseInfo{
+			MobileNumber: *req.MobileNumber,
+		},
+	})
 }

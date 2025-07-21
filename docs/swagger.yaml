@@ -1,0 +1,70 @@
+definitions:
+  dto.RequestOTPInput:
+    properties:
+      mobile_number:
+        type: string
+    type: object
+  dto.RequestOTPOutput:
+    properties:
+      message:
+        type: string
+    type: object
+  dto.VerifyOTPInput:
+    properties:
+      mobile_number:
+        type: string
+      otp_code:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a UserManagenet which implements OTP
+  termsOfService: http://swagger.io/terms/
+  title: OTP UserManagement
+  version: "1.0"
+paths:
+  /user-management/req-otp:
+    post:
+      consumes:
+      - application/json
+      description: Request an OTP
+      parameters:
+      - description: Request OTP Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestOTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RequestOTPOutput'
+      summary: Request an OTP
+      tags:
+      - OTP
+  /user-management/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify an OTP
+      parameters:
+      - description: Verify OTP Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyOTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Verify an OTP
+      tags:
+      - OTP
+swagger: "2.0"
