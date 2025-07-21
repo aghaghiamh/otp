@@ -1,9 +1,22 @@
 version: '3.1'
 
 services:
+  app:
+    build: otp-app:latest
+    container_name: otp-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - db
+    environment:
+      - environment=dockerized
+    networks:
+      - otp-management
   db:
     image: postgres:17.2-alpine
-    container_name: user-db
+    container_name: otp-db
     restart: always
     environment:
     # TODO: if it going to deployed on k8s ADD it to configMAp
@@ -14,6 +27,8 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - otp-management
 
   redis:
     image: redis:7.4.2 
