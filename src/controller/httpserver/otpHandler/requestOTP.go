@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	dto "otp/src/controller/httpserver/otpHandler/DTO"
+	"otp/src/pkg/errUtils"
 
 	_ "otp/src/docs"
 
@@ -31,9 +32,8 @@ func (h Handler) RequestOTP(c echo.Context) error {
 
 	err := h.otpSvc.RequestOTP(*req.MobileNumber)
 	if err != nil {
-		// TODO: ERROR MSG
 
-		return echo.NewHTTPError(http.StatusBadRequest, "Not proper")
+		return echo.NewHTTPError(errutils.GetStatusCode(err), errutils.GenerateErrorMessage(err))
 	}
 
 	return c.JSON(http.StatusOK, dto.RequestOTPOutput{

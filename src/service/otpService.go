@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"otp/src/model"
+	customError "otp/src/pkg/error"
 	"otp/src/pkg/log"
 	"otp/src/repo"
 	"time"
@@ -34,26 +35,30 @@ func GetInstanceOfOTPService(otpRepo repo.OTPManagement, userRepo repo.UserManag
 func (receiver OTPService) RequestOTP(mobileNumber string) error {
 	// Assumed DDOS attack would be blocked by API Gateway RateLimiter
 	if _, err := receiver.otpRepo.Get(context.Background(), mobileNumber); err == nil {
-		log.GetLoggerInstance().Errorf("OTP Expiration Time violation!")
-		// TODO: appropriate error Handling
-		return fmt.Errorf("")
+		// TODO: Better handle Logrus fields, perhaps using consts
+		log.GetLoggerInstance().WithField("MobileNumber", mobileNumber).Errorf("duplicated OTP Request")
+
+		return &customError.DuplicateError{}
 	}
 
 	otpCode := generateRandomCode(6)
-
-	hashedOTP, err := bcrypt.GenerateFromPassword([]byte(otpCode), bcrypt.DefaultCost)
-	if err != nil {
-		// TODO: handle properly
-		return err
+	hashedOTP, gErr := bcrypt.GenerateFromPassword([]byte(otpCode), bcrypt.DefaultCost)
+	if gErr != nil {
+		log.GetLoggerInstance().
+			WithField("MobileNumber", mobileNumber).
+			WithError(gErr).Errorf("OTP bcrypt code  generation error")
+		return gErr
 	}
 
 	sErr := receiver.otpRepo.Store(context.Background(), mobileNumber, string(hashedOTP))
 	if sErr != nil {
-		// TODO: Handle Error
+		log.GetLoggerInstance().
+			WithField("MobileNumber", mobileNumber).
+			WithError(sErr).Errorf("could not store the generated OTP code into storage")
+		return sErr
 	}
 
-	log.GetLoggerInstance().Infof("OTP for %s is: %s", mobileNumber, otpCode)
-
+	log.GetLoggerInstance().WithField("MobileNumber", mobileNumber).Infof("OTP for %s is: %s", mobileNumber, otpCode)
 	return nil
 }
 
