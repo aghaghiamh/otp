@@ -16,7 +16,7 @@ import (
 
 var (
 	jwtSecret = []byte("my-super-secret-key")
-	ttl = 72 * time.Hour
+	ttl       = 72 * time.Hour
 )
 
 type OTPService struct {
@@ -26,7 +26,7 @@ type OTPService struct {
 
 func GetInstanceOfOTPService(otpRepo repo.OTPManagement, userRepo repo.UserManagement) *OTPService {
 	return &OTPService{
-		otpRepo: otpRepo,
+		otpRepo:  otpRepo,
 		userRepo: userRepo,
 	}
 }
@@ -105,13 +105,13 @@ func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) (string, erro
 	if aErr != nil {
 		return "", fmt.Errorf("couldn't create JWT Token")
 	}
-	
+
 	return accessToken, nil
 }
 
 type Claims struct {
-	Subject  string      `json:"subject"`
-	UserID   uint        `json:"user_id"`
+	Subject string `json:"subject"`
+	UserID  uint   `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -123,10 +123,10 @@ func (c *Claims) Valid() {
 func CreateAccessToken(userID uint) (string, error) {
 	const op = "authservice.createToken"
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		&Claims{
-			Subject:  "AC",
-			UserID:   userID,
+			Subject: "AC",
+			UserID:  userID,
 			RegisteredClaims: jwt.RegisteredClaims{
 				ExpiresAt: &jwt.NumericDate{time.Now().Add(ttl)},
 			},

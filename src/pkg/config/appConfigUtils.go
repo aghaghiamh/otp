@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/kelseyhightower/envconfig"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+
+	"github.com/kelseyhightower/envconfig"
+	"gopkg.in/yaml.v3"
 )
 
 func GetRunningEnv() string {

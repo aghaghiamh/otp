@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
-	otphandler "otp/src/controller/httpserver/otpHandler"
+	"otp/src/controller/httpserver/otpHandler"
 	"otp/src/pkg/config"
 	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type HttpConfig struct {
@@ -36,6 +37,7 @@ func (s *Server) Serve() {
 	s.router.Use(middleware.Recover())
 
 	s.otpHandler.SetRoutes(s.router)
+	s.router.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	cfg := config.GetAppConfigInstance()
 

@@ -4,13 +4,18 @@ import (
 	"os"
 	"os/signal"
 	"otp/src/controller/httpserver"
-	otphandler "otp/src/controller/httpserver/otpHandler"
+	"otp/src/controller/httpserver/otpHandler"
+	_ "otp/src/docs"
 	"otp/src/pkg/config"
 	"otp/src/repo/adaptor"
 	"otp/src/repo/implementation"
 	"otp/src/service"
 )
 
+// @title			OTP UserManagement
+// @version		1.0
+// @description	This is a UserManagenet which implements OTP
+// @termsOfService	http://swagger.io/terms/
 func main() {
 	config.GetAppConfigInstance()
 	redisClient := adaptor.CreateRedisClient()

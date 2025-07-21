@@ -2,11 +2,23 @@ package otphandler
 
 import (
 	"net/http"
-	"otp/src/controller/httpserver/otpHandler/DTO"
+	dto "otp/src/controller/httpserver/otpHandler/DTO"
+
+	_ "otp/src/docs"
 
 	"github.com/labstack/echo/v4"
 )
 
+// RequestOTP Request an OTP
+//
+//	@Summary		Request an OTP
+//	@Description	Request an OTP
+//	@Tags			OTP
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload body dto.RequestOTPInputDTO true "Request OTP Payload"
+//	@Success		200			string		model.Account
+//	@Router			/user-management/req-otp [post]
 func (h Handler) RequestOTP(c echo.Context) error {
 	var req dto.RequestOTPInputDTO
 	if err := c.Bind(&req); err != nil {

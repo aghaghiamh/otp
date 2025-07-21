@@ -2,11 +2,21 @@ package otphandler
 
 import (
 	"net/http"
-	"otp/src/controller/httpserver/otpHandler/DTO"
+	dto "otp/src/controller/httpserver/otpHandler/DTO"
 
 	"github.com/labstack/echo/v4"
 )
 
+// VerifyOTP Verify an OTP
+//
+//	@Summary		Verify an OTP
+//	@Description	Verify an OTP
+//	@Tags			OTP
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload body dto.VerifyOTPInputDTO true "Verify OTP Payload"
+//	@Success		200			string		model.Account
+//	@Router			/user-management/verify-otp [post]
 func (h Handler) VerifyOTP(c echo.Context) error {
 	var req dto.VerifyOTPInputDTO
 	if err := c.Bind(&req); err != nil {
