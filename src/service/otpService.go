@@ -7,12 +7,17 @@ import (
 	"otp/src/model"
 	"otp/src/pkg/log"
 	"otp/src/repo"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-var jwtSecret = []byte("my-super-secret-key")
+var (
+	jwtSecret = []byte("my-super-secret-key")
+	ttl = 72 * time.Hour
+)
 
 type OTPService struct {
 	otpRepo  repo.OTPManagement
@@ -63,21 +68,22 @@ func generateRandomCode(length int) string {
 	return string(buffer)
 }
 
-func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) error {
+func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) (string, error) {
 	codeHash, gErr := receiver.otpRepo.Get(context.Background(), mobileNumber)
 	if gErr != nil {
 		log.GetLoggerInstance().Errorf("There is no record with %s mobile number", mobileNumber)
 		// TODO: appropriate error Handling
-		return fmt.Errorf("")
+		return "", fmt.Errorf("")
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(codeHash), []byte(otpCode))
 	if err != nil {
-		return fmt.Errorf("invalid OTP")
+		return "", fmt.Errorf("invalid OTP")
 	}
 
 	// User Registeration OR Login
 	// TODO: Separate the entity.USer and model.User, as it is better to not knowing about the Repo layer.
+	// TODO: put the user logic in totally separate service
 	user, uErr := receiver.userRepo.GetUserByMobileNumber(context.Background(), mobileNumber)
 
 	if uErr != nil {
@@ -87,25 +93,50 @@ func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) error {
 			}
 			cErr := receiver.userRepo.Register(context.Background(), user)
 			if cErr != nil {
-				return cErr
+				return "", cErr
 			}
 		} else {
-			return uErr
+			return "", uErr
 		}
 	}
 
-	return nil
+	// TODO: Put all JWT code into the auth service and use it through receiver
+	accessToken, aErr := CreateAccessToken(user.ID)
+	if aErr != nil {
+		return "", fmt.Errorf("couldn't create JWT Token")
+	}
+	
+	return accessToken, nil
+}
 
-	// claims := jwt.MapClaims{
-	//     "user_id": user.ID,
-	//     "mobile":  user.MobileNumber,
-	//     "exp":     time.Now().Add(time.Hour * 72).Unix(), // Token expires in 3 days
-	// }
-	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// tokenString, err := token.SignedString(jwtSecret)
-	// if err != nil {
-	//     return "", err
-	// }
+type Claims struct {
+	Subject  string      `json:"subject"`
+	UserID   uint        `json:"user_id"`
+	jwt.RegisteredClaims
+}
 
-	// return tokenString, nil
+func (c *Claims) Valid() {
+
+	return
+}
+
+func CreateAccessToken(userID uint) (string, error) {
+	const op = "authservice.createToken"
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, 
+		&Claims{
+			Subject:  "AC",
+			UserID:   userID,
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: &jwt.NumericDate{time.Now().Add(ttl)},
+			},
+		})
+
+	tokenString, signErr := token.SignedString(jwtSecret)
+	if signErr != nil {
+
+		return "", fmt.Errorf("Couldn't sign JWT Token")
+	}
+
+	return tokenString, nil
 }

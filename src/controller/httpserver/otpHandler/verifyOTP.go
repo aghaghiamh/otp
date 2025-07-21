@@ -16,7 +16,7 @@ func (h Handler) VerifyOTP(c echo.Context) error {
 
 	// TODO: Validation
 
-	err := h.otpSvc.VerifyOTP(*req.MobileNumber, *req.OtpCode)
+	_, err := h.otpSvc.VerifyOTP(*req.MobileNumber, *req.OtpCode)
 	if err != nil {
 		// TODO: ERROR MSG
 
