@@ -30,7 +30,8 @@ func (h Handler) RequestOTP(c echo.Context) error {
 
 	// TODO: Validation
 
-	err := h.otpSvc.RequestOTP(*req.MobileNumber)
+	// TODO: other functionalities of context like timeouts better to be implemented.
+	err := h.otpSvc.RequestOTP(c.Request().Context(), req)
 	if err != nil {
 
 		return echo.NewHTTPError(errutils.GetStatusCode(err), errutils.GenerateErrorMessage(err))

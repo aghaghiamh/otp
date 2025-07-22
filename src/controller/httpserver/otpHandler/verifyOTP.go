@@ -3,6 +3,7 @@ package otphandler
 import (
 	"net/http"
 	dto "otp/src/controller/httpserver/otpHandler/DTO"
+	errutils "otp/src/pkg/errUtils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,19 +19,19 @@ import (
 //	@Success		200		string	dto.VerifyOTPOutput
 //	@Router			/user-management/verify-otp [post]
 func (h Handler) VerifyOTP(c echo.Context) error {
-	var req dto.VerifyOTPInput
-	if err := c.Bind(&req); err != nil {
+	var verifyReq dto.VerifyOTPInput
+	if err := c.Bind(&verifyReq); err != nil {
 
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// TODO: Validation
+	// TODO: Validation is a must here, to pass it to the service layer
 
-	access_token, err := h.otpSvc.VerifyOTP(*req.MobileNumber, *req.OtpCode)
+	// TODO: other functionalities of context like timeouts better to be implemented.
+	access_token, err := h.otpSvc.VerifyOTP(c.Request().Context(), verifyReq)
 	if err != nil {
-		// TODO: ERROR MSG
 
-		return echo.NewHTTPError(http.StatusBadRequest, "Not proper")
+		return echo.NewHTTPError(errutils.GetStatusCode(err), errutils.GenerateErrorMessage(err))
 	}
 
 	return c.JSON(http.StatusOK, dto.VerifyOTPOutput{
@@ -38,7 +39,7 @@ func (h Handler) VerifyOTP(c echo.Context) error {
 			AccessToken: access_token,
 		},
 		UserInfo: dto.UserOTPResponseInfo{
-			MobileNumber: *req.MobileNumber,
+			MobileNumber: *verifyReq.MobileNumber,
 		},
 	})
 }

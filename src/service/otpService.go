@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"crypto/rand"
-	"fmt"
+	dto "otp/src/controller/httpserver/otpHandler/DTO"
 	"otp/src/model"
 	customError "otp/src/pkg/error"
 	"otp/src/pkg/log"
@@ -32,11 +32,11 @@ func GetInstanceOfOTPService(otpRepo repo.OTPManagement, userRepo repo.UserManag
 	}
 }
 
-func (receiver OTPService) RequestOTP(mobileNumber string) error {
+func (receiver OTPService) RequestOTP(ctx context.Context, req dto.RequestOTPInput) error {
 	// Assumed DDOS attack would be blocked by API Gateway RateLimiter
-	if _, err := receiver.otpRepo.Get(context.Background(), mobileNumber); err == nil {
+	if _, err := receiver.otpRepo.Get(context.Background(), *req.MobileNumber); err == nil {
 		// TODO: Better handle Logrus fields, perhaps using consts
-		log.GetLoggerInstance().WithField("MobileNumber", mobileNumber).Errorf("duplicated OTP Request")
+		log.GetLoggerInstance().WithField("MobileNumber", *req.MobileNumber).Errorf("duplicated OTP Request")
 
 		return &customError.DuplicateError{}
 	}
@@ -45,20 +45,20 @@ func (receiver OTPService) RequestOTP(mobileNumber string) error {
 	hashedOTP, gErr := bcrypt.GenerateFromPassword([]byte(otpCode), bcrypt.DefaultCost)
 	if gErr != nil {
 		log.GetLoggerInstance().
-			WithField("MobileNumber", mobileNumber).
+			WithField("MobileNumber", *req.MobileNumber).
 			WithError(gErr).Errorf("OTP bcrypt code  generation error")
 		return gErr
 	}
 
-	sErr := receiver.otpRepo.Store(context.Background(), mobileNumber, string(hashedOTP))
+	sErr := receiver.otpRepo.Store(ctx, *req.MobileNumber, string(hashedOTP))
 	if sErr != nil {
 		log.GetLoggerInstance().
-			WithField("MobileNumber", mobileNumber).
+			WithField("MobileNumber", *req.MobileNumber).
 			WithError(sErr).Errorf("could not store the generated OTP code into storage")
 		return sErr
 	}
 
-	log.GetLoggerInstance().WithField("MobileNumber", mobileNumber).Infof("OTP for %s is: %s", mobileNumber, otpCode)
+	log.GetLoggerInstance().WithField("MobileNumber", *req.MobileNumber).Infof("OTP for %s is: %s", *req.MobileNumber, otpCode)
 	return nil
 }
 
@@ -73,31 +73,41 @@ func generateRandomCode(length int) string {
 	return string(buffer)
 }
 
-func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) (string, error) {
-	codeHash, gErr := receiver.otpRepo.Get(context.Background(), mobileNumber)
+func (receiver OTPService) VerifyOTP(ctx context.Context, req dto.VerifyOTPInput) (string, error) {
+	codeHash, gErr := receiver.otpRepo.Get(context.Background(), *req.MobileNumber)
 	if gErr != nil {
-		log.GetLoggerInstance().Errorf("There is no record with %s mobile number", mobileNumber)
-		// TODO: appropriate error Handling
-		return "", fmt.Errorf("")
+		log.GetLoggerInstance().WithError(gErr).
+			WithField("MobileNumber", *req.MobileNumber).
+			Error("there is no OTP for this mobile number")
+
+		return "", &customError.OtpNotFoundError{}
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(codeHash), []byte(otpCode))
-	if err != nil {
-		return "", fmt.Errorf("invalid OTP")
+	pErr := bcrypt.CompareHashAndPassword([]byte(codeHash), []byte(*req.OtpCode))
+	// TODO: Store this malicious request, so then other attempts of user also must be checked
+	// to not surpass a limited amount in longer period!
+	if pErr != nil {
+		log.GetLoggerInstance().WithError(pErr).
+			WithField("MobileNumber", *req.MobileNumber).
+			Errorf("user provided malicious OTP code: %s", *req.OtpCode)
+		return "", &customError.InvalidOtpError{}
 	}
 
 	// User Registeration OR Login
 	// TODO: Separate the entity.USer and model.User, as it is better to not knowing about the Repo layer.
 	// TODO: put the user logic in totally separate service
-	user, uErr := receiver.userRepo.GetUserByMobileNumber(context.Background(), mobileNumber)
+	user, uErr := receiver.userRepo.GetUserByMobileNumber(ctx, *req.MobileNumber)
 
 	if uErr != nil {
 		if uErr == gorm.ErrRecordNotFound {
 			user = &model.User{
-				MobileNumber: mobileNumber,
+				MobileNumber: *req.MobileNumber,
 			}
-			cErr := receiver.userRepo.Register(context.Background(), user)
+			cErr := receiver.userRepo.Register(ctx, user)
 			if cErr != nil {
+				log.GetLoggerInstance().WithError(uErr).
+					WithField("MobileNumber", *req.MobileNumber).
+					Error("couldn't register user")
 				return "", cErr
 			}
 		} else {
@@ -108,7 +118,8 @@ func (receiver OTPService) VerifyOTP(mobileNumber, otpCode string) (string, erro
 	// TODO: Put all JWT code into the auth service and use it through receiver
 	accessToken, aErr := CreateAccessToken(user.ID)
 	if aErr != nil {
-		return "", fmt.Errorf("couldn't create JWT Token")
+		// TODO: right now JWT errors better to be treated as server Error, but should be treated otherwise in auth service.
+		return "", aErr
 	}
 
 	return accessToken, nil
@@ -139,8 +150,9 @@ func CreateAccessToken(userID uint) (string, error) {
 
 	tokenString, signErr := token.SignedString(jwtSecret)
 	if signErr != nil {
-
-		return "", fmt.Errorf("Couldn't sign JWT Token")
+		// TODO: right now JWT errors better to be treated as server Error, but should be treated otherwise in auth service.
+		log.GetLoggerInstance().WithError(signErr).Error("couldn't sign JWT Token")
+		return "", signErr
 	}
 
 	return tokenString, nil
