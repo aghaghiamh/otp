@@ -93,6 +93,8 @@ func (receiver OTPService) VerifyOTP(ctx context.Context, req dto.VerifyOTPInput
 		return "", &customError.InvalidOtpError{}
 	}
 
+	// TODO: DEL Genrerated OTP
+
 	// User Registeration OR Login
 	// TODO: Separate the entity.USer and model.User, as it is better to not knowing about the Repo layer.
 	// TODO: put the user logic in totally separate service

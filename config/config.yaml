@@ -9,7 +9,7 @@ log:
   level: "info"
 
 # With the help of this field, you can specify what type of database you want to use.
-# Possible values: postgres/sqlserver/memory
+# Possible values: postgres/memory(not at the moment)
 # You can change or overwrite this value using the DB env
 database: 'postgres'
 
@@ -30,6 +30,9 @@ postgres:
 # This configuration specifies how long the OTP is valid
 # You can change or overwrite this value using the EXPIRATION_IN_MINUTE env
 defaultExpirationInMinute: 2
+
+# How long the server would tolerate delays in its responses
+requestTimeoutInSeconds: 10
 
 # When this configuration is set, the application automatically creates the tables related to the database.
 # You can change or overwrite this value using the AUTO_MIGRATION env

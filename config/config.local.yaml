@@ -19,4 +19,6 @@ cache:
   password: "" # TODO: implement later using env variables
   db: 0
 
+requestTimeoutInSeconds: 10
+
 autoMigrationEnable: true

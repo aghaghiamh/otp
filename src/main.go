@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 	"os/signal"
+	_ "otp/docs"
 	"otp/src/controller/httpserver"
 	"otp/src/controller/httpserver/otpHandler"
-	_ "otp/src/docs"
 	"otp/src/pkg/config"
 	"otp/src/repo/adaptor"
 	"otp/src/repo/implementation"

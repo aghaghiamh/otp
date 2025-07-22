@@ -4,6 +4,7 @@ type AppConfig struct {
 	OTPCacheReservedKey       string `yaml:"otpCacheReservedKey" envconfig:"OTP_CACHE_RESERVED_KEY"`
 	Database                  string `yaml:"database" envconfig:"DB_TYPE"`
 	DefaultExpirationInMinute int16  `yaml:"defaultExpirationInMinute" envconfig:"EXPIRATION_IN_MINUTE"`
+	RequestTimeoutInSeconds   int16  `yaml:"requestTimeoutInSeconds" envconfig:"REQUEST_TIMEOUT_IN_SECONDS"`
 	AutoMigrationEnable       bool   `yaml:"autoMigrationEnable" envconfig:"AUTO_MIGRATION"`
 	SwaggerBaseAddress        string `yaml:"swaggerBaseAddress"`
 

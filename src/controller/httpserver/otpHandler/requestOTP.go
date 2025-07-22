@@ -1,12 +1,15 @@
 package otphandler
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	dto "otp/src/controller/httpserver/otpHandler/DTO"
+	"otp/src/pkg/config"
 	"otp/src/pkg/errUtils"
-
-	_ "otp/src/docs"
+	"otp/src/pkg/log"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -28,11 +31,21 @@ func (h Handler) RequestOTP(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// TODO: Validation
+	// TODO: Validation is a must here, to pass it to the service layer
 
-	// TODO: other functionalities of context like timeouts better to be implemented.
-	err := h.otpSvc.RequestOTP(c.Request().Context(), req)
+	cnf := config.GetAppConfigInstance()
+	ctx, cancel := context.WithTimeout(
+		c.Request().Context(),
+		time.Duration(cnf.RequestTimeoutInSeconds)*time.Second,
+	)
+	defer cancel()
+
+	err := h.otpSvc.RequestOTP(ctx, req)
 	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.GetLoggerInstance().WithError(err).Error("The request timed out.")
+			return echo.NewHTTPError(http.StatusGatewayTimeout, errutils.GenerateErrorMessage(err))
+		}
 
 		return echo.NewHTTPError(errutils.GetStatusCode(err), errutils.GenerateErrorMessage(err))
 	}

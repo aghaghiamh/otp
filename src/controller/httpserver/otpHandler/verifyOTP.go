@@ -1,9 +1,14 @@
 package otphandler
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	dto "otp/src/controller/httpserver/otpHandler/DTO"
+	"otp/src/pkg/config"
 	errutils "otp/src/pkg/errUtils"
+	"otp/src/pkg/log"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -27,9 +32,19 @@ func (h Handler) VerifyOTP(c echo.Context) error {
 
 	// TODO: Validation is a must here, to pass it to the service layer
 
-	// TODO: other functionalities of context like timeouts better to be implemented.
-	access_token, err := h.otpSvc.VerifyOTP(c.Request().Context(), verifyReq)
+	cnf := config.GetAppConfigInstance()
+	ctx, cancel := context.WithTimeout(
+		c.Request().Context(),
+		time.Duration(cnf.RequestTimeoutInSeconds)*time.Second,
+	)
+	defer cancel()
+
+	access_token, err := h.otpSvc.VerifyOTP(ctx, verifyReq)
 	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.GetLoggerInstance().WithError(err).Error("The request timed out.")
+			return echo.NewHTTPError(http.StatusGatewayTimeout, errutils.GenerateErrorMessage(err))
+		}
 
 		return echo.NewHTTPError(errutils.GetStatusCode(err), errutils.GenerateErrorMessage(err))
 	}
