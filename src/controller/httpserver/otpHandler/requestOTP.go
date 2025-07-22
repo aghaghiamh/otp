@@ -31,7 +31,12 @@ func (h Handler) RequestOTP(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// TODO: Validation is a must here, to pass it to the service layer
+	if fieldErrors, vErr := h.validator.ValidateRequestOTP(req); vErr != nil {
+		return c.JSON(errutils.GetStatusCode(vErr), echo.Map{
+			"message": errutils.GenerateErrorMessage(vErr),
+			"errors":  fieldErrors,
+		})
+	}
 
 	cnf := config.GetAppConfigInstance()
 	ctx, cancel := context.WithTimeout(

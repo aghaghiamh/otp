@@ -2,11 +2,12 @@ package otphandler
 
 import (
 	"otp/src/service"
+	"otp/src/validator"
 )
 
 type Handler struct {
 	otpSvc service.OTPService
-	// TODO: ADD Validation
+	validator validator.OTPValidator
 }
 
 // TODO: Stick to naming convention of GetInstance..

@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.11
 
 require (
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.13.4
@@ -12,7 +13,6 @@ require (
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/swaggo/echo-swagger v1.4.1
-	github.com/swaggo/files v1.0.1
 	github.com/swaggo/swag v1.16.5
 	golang.org/x/crypto v0.40.0
 	gopkg.in/yaml.v3 v3.0.1
